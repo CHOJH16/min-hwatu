@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>리얼 민화투 (Real Min-Hwatu)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- 상단: 컴퓨터 영역 -->
+        <div class="player-zone top">
+            <div class="info-bar">
+                <span class="player-name">🤖 컴퓨터</span>
+                <span id="com-score" class="score">0점</span>
+            </div>
+            <!-- 컴퓨터가 먹은 패 -->
+            <div id="com-captured" class="captured-area"></div>
+            <!-- 컴퓨터 손패 (뒷면) -->
+            <div id="com-hand" class="hand-area"></div>
+        </div>
+
+        <!-- 중앙: 바닥 패 -->
+        <div id="field-area">
+            <div id="field-cards"></div>
+        </div>
+
+        <!-- 하단: 플레이어 영역 -->
+        <div class="player-zone bottom">
+            <!-- 내 손패 -->
+            <div id="player-hand" class="hand-area"></div>
+            <!-- 내가 먹은 패 -->
+            <div id="player-captured" class="captured-area"></div>
+            <div class="info-bar">
+                <span class="player-name">👤 나</span>
+                <span id="my-score" class="score">0점</span>
+            </div>
+        </div>
+
+        <!-- 게임 메시지 알림창 -->
+        <div id="message-box">게임을 시작합니다!</div>
+        
+        <!-- 다시 시작 버튼 -->
+        <div id="btn-container">
+            <button id="restart-btn" onclick="startGame()">게임 시작</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

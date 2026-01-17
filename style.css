@@ -1,0 +1,147 @@
+s/* 전체 설정 */
+body {
+    background-color: #004d40; /* 짙은 초록색 (화투 담요 색) */
+    color: white;
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    margin: 0;
+    overflow: hidden; /* 스크롤 방지 */
+    user-select: none; /* 드래그 방지 */
+    text-align: center;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* 화면 전체 높이 사용 */
+    justify-content: space-between;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* 플레이어 구역 (위/아래) */
+.player-zone {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+.player-zone.top { flex-direction: column; } /* 컴퓨터는 위에서 아래로 */
+.player-zone.bottom { flex-direction: column; } /* 나는 위에서 아래로 배치 */
+
+.info-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+    margin-bottom: 5px;
+}
+
+/* 카드 놓이는 구역 공통 */
+.hand-area, #field-cards, .captured-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+    gap: -10px; /* 카드끼리 살짝 겹치게 */
+}
+
+/* 먹은 패는 좀 작게 보여줌 */
+.captured-area {
+    min-height: 60px;
+    margin: 5px 0;
+    flex-wrap: wrap; /* 많아지면 줄바꿈 */
+    justify-content: center;
+}
+
+/* 중앙 바닥 패 */
+#field-area {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#field-cards {
+    flex-wrap: wrap;
+    max-width: 800px;
+}
+
+/* 카드 디자인 */
+.card {
+    width: 50px;
+    height: 80px;
+    background-color: transparent;
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    margin: 0 2px;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+/* 내가 낼 수 있는 카드에 마우스 올렸을 때 */
+#player-hand .card:hover {
+    transform: translateY(-20px) scale(1.1);
+    z-index: 10;
+    box-shadow: 0 0 10px yellow;
+}
+
+/* 먹은 패는 작게 */
+.captured-area .card {
+    width: 35px;
+    height: 56px;
+    margin: 1px;
+    box-shadow: none;
+}
+
+/* 컴퓨터 뒷면 패 */
+.card-back {
+    /* 화투 뒷면 이미지 */
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/2/23/Hanafuda_Back.svg');
+    border: 1px solid #aaa;
+}
+
+/* 알림 메시지 박스 */
+#message-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0,0,0,0.85);
+    color: #ffd700;
+    padding: 20px 40px;
+    border-radius: 50px;
+    font-size: 20px;
+    font-weight: bold;
+    z-index: 100;
+    display: none;
+    pointer-events: none;
+    border: 2px solid #ffd700;
+}
+
+/* 시작 버튼 */
+#btn-container {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 101;
+}
+
+button {
+    padding: 15px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    background-color: #ffca28;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
+button:hover { background-color: #ffb300; }
