@@ -1,23 +1,25 @@
-/* script.js - 최종 수정판 (CDN 적용) */
+/* script.js - 무설치 이모지 버전 (Unbreakable Edition) */
 
-// 1. 끊김 없는 초고속 CDN 주소 사용
-// (jsDelivr를 통해 전송되므로 웬만해선 막히지 않습니다)
-const IMG_BASE_URL = "https://cdn.jsdelivr.net/gh/fletchowns/hanafuda-js/img/cards/";
+/* 
+  이미지 파일 다운로드나 링크 깨짐 걱정 없이,
+  이모지(Emoji)를 사용하여 화투패를 표현합니다.
+  100% 작동을 보장합니다.
+*/
 
-// 민화투 족보 및 점수 설정
-const monthConfig = [
-    { m: 1, types: ['광', '띠', '피', '피'], score: [20, 5, 0, 0] },
-    { m: 2, types: ['열', '띠', '피', '피'], score: [10, 5, 0, 0] },
-    { m: 3, types: ['광', '띠', '피', '피'], score: [20, 5, 0, 0] },
-    { m: 4, types: ['열', '띠', '피', '피'], score: [10, 5, 0, 0] },
-    { m: 5, types: ['열', '띠', '피', '피'], score: [10, 5, 0, 0] },
-    { m: 6, types: ['열', '띠', '피', '피'], score: [10, 5, 0, 0] },
-    { m: 7, types: ['열', '띠', '피', '피'], score: [10, 5, 0, 0] },
-    { m: 8, types: ['광', '열', '피', '피'], score: [20, 10, 0, 0] },
-    { m: 9, types: ['열', '띠', '피', '피'], score: [10, 5, 0, 0] },
-    { m: 10, types: ['열', '띠', '피', '피'], score: [10, 5, 0, 0] },
-    { m: 11, types: ['광', '피', '피', '피'], score: [20, 0, 0, 0] }, // 똥
-    { m: 12, types: ['광', '열', '띠', '피'], score: [20, 10, 5, 0] }  // 비
+// 월별 이모지 및 구성 설정 (민화투 점수판)
+const deckConfig = [
+    { m: 1,  icon: '🎍', name: '송학', types: ['광', '띠', '피', '피'], scores: [20, 5, 0, 0] },
+    { m: 2,  icon: '🐦', name: '매조', types: ['열', '띠', '피', '피'], scores: [10, 5, 0, 0] },
+    { m: 3,  icon: '🌸', name: '벚꽃', types: ['광', '띠', '피', '피'], scores: [20, 5, 0, 0] },
+    { m: 4,  icon: '🌿', name: '흑싸리', types: ['열', '띠', '피', '피'], scores: [10, 5, 0, 0] },
+    { m: 5,  icon: '💐', name: '난초', types: ['열', '띠', '피', '피'], scores: [10, 5, 0, 0] },
+    { m: 6,  icon: '🦋', name: '모란', types: ['열', '띠', '피', '피'], scores: [10, 5, 0, 0] },
+    { m: 7,  icon: '🐗', name: '홍싸리', types: ['열', '띠', '피', '피'], scores: [10, 5, 0, 0] },
+    { m: 8,  icon: '🌕', name: '공산', types: ['광', '열', '피', '피'], scores: [20, 10, 0, 0] },
+    { m: 9,  icon: '🏆', name: '국화', types: ['열', '띠', '피', '피'], scores: [10, 5, 0, 0] },
+    { m: 10, icon: '🍁', name: '단풍', types: ['열', '띠', '피', '피'], scores: [10, 5, 0, 0] },
+    { m: 11, icon: '🌞', name: '오동', types: ['광', '피', '피', '피'], scores: [20, 0, 0, 0] }, // 똥 (11월)
+    { m: 12, icon: '☔', name: '비',   types: ['광', '열', '띠', '피'], scores: [20, 10, 5, 0] }  // 비 (12월)
 ];
 
 let deck = [];
@@ -28,28 +30,21 @@ let playerCaptured = [];
 let comCaptured = [];
 let turn = 'player';
 
+// 덱 생성 (이미지 경로 필요 없음!)
 function createDeck() {
     deck = [];
-    for (let i = 0; i < 12; i++) {
-        let month = i + 1;
-        let config = monthConfig[i];
-        
-        // 한국 화투(11똥, 12비) <-> 일본 화투(11비, 12똥) 이미지 매칭 보정
-        let baseImgIdx = i * 4;
-        if (month === 11) baseImgIdx = 44; // 11월엔 44~47번(똥) 이미지
-        if (month === 12) baseImgIdx = 40; // 12월엔 40~43번(비) 이미지
-
-        for (let j = 0; j < 4; j++) {
+    deckConfig.forEach(cfg => {
+        for (let i = 0; i < 4; i++) {
             deck.push({
                 id: Math.random(),
-                month: month,
-                type: config.types[j],
-                score: config.score[j],
-                // .gif 확장자 사용
-                imgSrc: `${IMG_BASE_URL}${baseImgIdx + j}.gif`
+                month: cfg.m,
+                icon: cfg.icon,  // 이모지
+                type: cfg.types[i],
+                score: cfg.scores[i],
+                monthName: cfg.name
             });
         }
-    }
+    });
 }
 
 function shuffle() { deck.sort(() => Math.random() - 0.5); }
@@ -61,42 +56,19 @@ function deal() {
     deck = deck.slice(28);
 }
 
-// [핵심] 카드 생성 시 이미지 에러 처리 강화
+// ★ 핵심: CSS로 카드 그리기 ★
 function createCardElement(card) {
     let div = document.createElement('div');
-    div.className = 'card';
+    // '광'이나 '띠' 같은 클래스 추가해서 CSS로 꾸밈
+    div.className = `card type-${card.type}`;
     
-    // 카드 기본 스타일 (이미지 로딩 전)
-    div.style.position = 'relative';
-    div.style.backgroundColor = '#fff';
-    div.style.display = 'flex';
-    div.style.alignItems = 'center';
-    div.style.justifyContent = 'center';
-
-    // 1. 이미지 태그 생성
-    let img = document.createElement('img');
-    img.src = card.imgSrc;
-    img.style.width = '100%';
-    img.style.height = '100%';
-    img.style.position = 'absolute';
-    img.style.left = '0';
-    img.style.top = '0';
+    // HTML 내용 조립 (월, 아이콘, 타입)
+    div.innerHTML = `
+        <div class="card-month">${card.month}월</div>
+        <div class="card-icon">${card.icon}</div>
+        <div class="card-type">${card.type}</div>
+    `;
     
-    // 2. 텍스트 (안전장치) 미리 생성
-    let text = document.createElement('span');
-    text.innerHTML = `<small>${card.month}월</small><br><b>${card.type}</b>`;
-    text.style.color = '#333';
-    text.style.zIndex = '0'; // 이미지 뒤에 숨김
-    
-    // 3. 이미지가 로드 실패하면 텍스트가 보이게 처리
-    img.onerror = function() {
-        this.style.display = 'none'; // 깨진 이미지 숨김
-        text.style.zIndex = '1';     // 텍스트를 앞으로 가져옴
-        div.style.border = '2px solid #ff0000'; // 에러난 카드는 빨간 테두리
-    };
-
-    div.appendChild(text);
-    div.appendChild(img);
     return div;
 }
 
@@ -110,7 +82,7 @@ function render() {
     pHandDiv.innerHTML = ''; cHandDiv.innerHTML = ''; 
     fieldDiv.innerHTML = ''; pCapDiv.innerHTML = ''; cCapDiv.innerHTML = '';
 
-    // 내 패 정렬
+    // 내 손패 (정렬)
     playerHand.sort((a,b) => a.month - b.month);
     playerHand.forEach((card, idx) => {
         let el = createCardElement(card);
@@ -118,7 +90,7 @@ function render() {
         pHandDiv.appendChild(el);
     });
 
-    // 컴퓨터 패 (뒷면)
+    // 컴퓨터 손패 (뒷면)
     comHand.forEach(() => {
         let el = document.createElement('div');
         el.className = 'card card-back';
@@ -128,9 +100,10 @@ function render() {
     // 바닥 패
     field.forEach(card => fieldDiv.appendChild(createCardElement(card)));
 
-    // 먹은 패
+    // 먹은 패 (점수순)
     playerCaptured.sort((a,b) => b.score - a.score);
     playerCaptured.forEach(card => pCapDiv.appendChild(createCardElement(card)));
+    
     comCaptured.sort((a,b) => b.score - a.score);
     comCaptured.forEach(card => cCapDiv.appendChild(createCardElement(card)));
 
@@ -164,7 +137,7 @@ function computerPlay() {
     if (playerHand.length === 0 && comHand.length === 0) endGame();
     else {
         turn = 'player';
-        showMessage("당신 차례!");
+        showMessage("당신의 차례!");
     }
 }
 
@@ -220,7 +193,7 @@ function endGame() {
     let my = calculateScore(playerCaptured);
     let com = calculateScore(comCaptured);
     let res = my > com ? "승리! 🎉" : my < com ? "패배.. 😭" : "무승부";
-    alert(`게임 끝!\n나: ${my}점 vs 컴: ${com}점\n\n${res}`);
+    alert(`[게임 종료]\n나: ${my}점 vs 컴: ${com}점\n\n${res}`);
     document.getElementById('restart-btn').parentNode.style.display = 'block';
 }
 
