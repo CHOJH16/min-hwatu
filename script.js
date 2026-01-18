@@ -1,10 +1,10 @@
-/* script.js */
+/* script.js - 최종 수정판 (CDN 적용) */
 
-// 1. 새로운 이미지 출처 (안정적인 PNG 파일)
-// GitHub의 Raw 파일 주소는 가끔 트래픽 제한이 걸릴 수 있습니다.
-// 이번에는 choijae님의 React-Hanafuda 저장소(한국형) 이미지를 사용합니다.
-const IMG_BASE_URL = "https://raw.githubusercontent.com/choijae/react-hanafuda/master/public/images/cards/";
+// 1. 끊김 없는 초고속 CDN 주소 사용
+// (jsDelivr를 통해 전송되므로 웬만해선 막히지 않습니다)
+const IMG_BASE_URL = "https://cdn.jsdelivr.net/gh/fletchowns/hanafuda-js/img/cards/";
 
+// 민화투 족보 및 점수 설정
 const monthConfig = [
     { m: 1, types: ['광', '띠', '피', '피'], score: [20, 5, 0, 0] },
     { m: 2, types: ['열', '띠', '피', '피'], score: [10, 5, 0, 0] },
@@ -16,8 +16,8 @@ const monthConfig = [
     { m: 8, types: ['광', '열', '피', '피'], score: [20, 10, 0, 0] },
     { m: 9, types: ['열', '띠', '피', '피'], score: [10, 5, 0, 0] },
     { m: 10, types: ['열', '띠', '피', '피'], score: [10, 5, 0, 0] },
-    { m: 11, types: ['광', '피', '피', '피'], score: [20, 0, 0, 0] }, // 똥 (한국식 11월)
-    { m: 12, types: ['광', '열', '띠', '피'], score: [20, 10, 5, 0] }  // 비 (한국식 12월)
+    { m: 11, types: ['광', '피', '피', '피'], score: [20, 0, 0, 0] }, // 똥
+    { m: 12, types: ['광', '열', '띠', '피'], score: [20, 10, 5, 0] }  // 비
 ];
 
 let deck = [];
@@ -34,12 +34,10 @@ function createDeck() {
         let month = i + 1;
         let config = monthConfig[i];
         
-        // 이미지 파일 인덱스 계산
-        // 대부분의 화투 이미지 소스는 일본식 순서(11월 비, 12월 똥)를 따름
-        // 한국식(11월 똥, 12월 비)에 맞게 이미지를 가져올 때 교체(Swap)함
+        // 한국 화투(11똥, 12비) <-> 일본 화투(11비, 12똥) 이미지 매칭 보정
         let baseImgIdx = i * 4;
-        if (month === 11) baseImgIdx = 44; // 11월엔 12월(똥) 이미지 사용
-        if (month === 12) baseImgIdx = 40; // 12월엔 11월(비) 이미지 사용
+        if (month === 11) baseImgIdx = 44; // 11월엔 44~47번(똥) 이미지
+        if (month === 12) baseImgIdx = 40; // 12월엔 40~43번(비) 이미지
 
         for (let j = 0; j < 4; j++) {
             deck.push({
@@ -47,8 +45,8 @@ function createDeck() {
                 month: month,
                 type: config.types[j],
                 score: config.score[j],
-                // 새 주소는 PNG 파일을 사용 (0.png ~ 47.png)
-                imgSrc: `${IMG_BASE_URL}${baseImgIdx + j}.png`
+                // .gif 확장자 사용
+                imgSrc: `${IMG_BASE_URL}${baseImgIdx + j}.gif`
             });
         }
     }
@@ -63,25 +61,41 @@ function deal() {
     deck = deck.slice(28);
 }
 
-// [중요] 카드를 화면에 만드는 함수 (이미지 태그 사용 + 에러 처리)
+// [핵심] 카드 생성 시 이미지 에러 처리 강화
 function createCardElement(card) {
     let div = document.createElement('div');
     div.className = 'card';
+    
+    // 카드 기본 스타일 (이미지 로딩 전)
+    div.style.position = 'relative';
+    div.style.backgroundColor = '#fff';
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.justifyContent = 'center';
 
     // 1. 이미지 태그 생성
     let img = document.createElement('img');
     img.src = card.imgSrc;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.position = 'absolute';
+    img.style.left = '0';
+    img.style.top = '0';
     
-    // 2. 이미지가 로딩되지 않았을 때(에러 발생 시) 텍스트를 보여줌
+    // 2. 텍스트 (안전장치) 미리 생성
+    let text = document.createElement('span');
+    text.innerHTML = `<small>${card.month}월</small><br><b>${card.type}</b>`;
+    text.style.color = '#333';
+    text.style.zIndex = '0'; // 이미지 뒤에 숨김
+    
+    // 3. 이미지가 로드 실패하면 텍스트가 보이게 처리
     img.onerror = function() {
         this.style.display = 'none'; // 깨진 이미지 숨김
-        let text = document.createElement('div');
-        text.className = 'alt-text';
-        text.innerHTML = `${card.month}월<br>${card.type}`;
-        div.appendChild(text);
-        div.style.backgroundColor = '#f0f0f0'; // 구분을 위해 회색 배경
+        text.style.zIndex = '1';     // 텍스트를 앞으로 가져옴
+        div.style.border = '2px solid #ff0000'; // 에러난 카드는 빨간 테두리
     };
 
+    div.appendChild(text);
     div.appendChild(img);
     return div;
 }
@@ -96,7 +110,7 @@ function render() {
     pHandDiv.innerHTML = ''; cHandDiv.innerHTML = ''; 
     fieldDiv.innerHTML = ''; pCapDiv.innerHTML = ''; cCapDiv.innerHTML = '';
 
-    // 내 패 (정렬)
+    // 내 패 정렬
     playerHand.sort((a,b) => a.month - b.month);
     playerHand.forEach((card, idx) => {
         let el = createCardElement(card);
@@ -117,7 +131,6 @@ function render() {
     // 먹은 패
     playerCaptured.sort((a,b) => b.score - a.score);
     playerCaptured.forEach(card => pCapDiv.appendChild(createCardElement(card)));
-    
     comCaptured.sort((a,b) => b.score - a.score);
     comCaptured.forEach(card => cCapDiv.appendChild(createCardElement(card)));
 
