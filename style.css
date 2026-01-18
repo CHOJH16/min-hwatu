@@ -1,8 +1,7 @@
-/* style.css */
 body {
-    background-color: #004d40;
+    background-color: #004d40; /* 진한 녹색 (담요 색) */
     color: white;
-    font-family: 'Apple SD Gothic Neo', sans-serif;
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
     margin: 0;
     overflow: hidden;
     user-select: none;
@@ -18,106 +17,137 @@ body {
     box-sizing: border-box;
 }
 
+/* 플레이어 영역 */
 .player-zone {
     background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 10px;
-    padding: 5px;
+    border-radius: 15px;
+    padding: 8px;
 }
 
 .info-bar {
     display: flex;
     justify-content: space-between;
     padding: 0 15px;
+    font-size: 1.1rem;
     font-weight: bold;
     text-shadow: 1px 1px 2px black;
     margin-bottom: 5px;
 }
 
-/* 카드 영역 공통 */
+/* 카드 놓이는 곳 */
 .hand-area, #field-cards, .captured-area {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 85px;
+    min-height: 90px;
     gap: -15px; /* 카드 겹침 효과 */
 }
 
 #field-cards { flex-wrap: wrap; }
-.captured-area { min-height: 60px; flex-wrap: wrap; transform: scale(0.9); }
+.captured-area { min-height: 60px; transform: scale(0.85); flex-wrap: wrap; }
 
-/* 카드 디자인 */
+/* ★ 핵심: 카드 디자인 (이미지 없이 CSS로 만듦) ★ */
 .card {
-    width: 50px;
-    height: 80px;
-    border-radius: 4px;
-    margin: 0 2px;
-    cursor: pointer;
+    width: 52px;
+    height: 82px;
+    background-color: #fff; /* 카드 배경 흰색 */
+    border-radius: 6px;
+    border: 1px solid #999;
+    margin: 2px;
     position: relative;
-    /* 이미지가 없을 때를 대비한 기본 배경 */
-    background-color: #fff;
-    border: 1px solid #333;
+    cursor: pointer;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    transition: transform 0.2s;
+    
+    /* 내용물 정렬 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: black;
+}
+
+/* 마우스 올렸을 때 */
+#player-hand .card:hover {
+    transform: translateY(-20px) scale(1.1);
+    z-index: 100;
+    border: 2px solid #ffeb3b;
+    box-shadow: 0 0 15px rgba(255, 235, 59, 0.6);
+}
+
+/* 카드 안의 요소들 */
+.card-month {
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #d32f2f; /* 빨간색 글씨 */
+}
+
+.card-icon {
+    font-size: 32px; /* 이모지 크기 */
+    line-height: 1;
+}
+
+.card-type {
+    position: absolute;
+    bottom: 3px;
+    right: 5px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #555;
+    background-color: #eee;
+    padding: 1px 3px;
+    border-radius: 3px;
+}
+
+/* 광(Bright) 효과 */
+.card.type-광 { background-color: #fffde7; border: 2px solid #fbc02d; }
+.card.type-광 .card-type { background-color: #fbc02d; color: black; }
+
+/* 띠(Ribbon) 효과 */
+.card.type-띠 .card-icon { text-shadow: 0 0 5px rgba(255,0,0,0.3); }
+
+/* 컴퓨터 뒷면 */
+.card-back {
+    background-color: #b71c1c; /* 화투 뒷면 빨간색 */
+    background-image: radial-gradient(circle, #d32f2f 20%, transparent 20%);
+    background-size: 10px 10px;
+    border: 2px solid #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-    overflow: hidden; /* 이미지가 둥근 모서리 넘지 않게 */
+}
+.card-back::after {
+    content: "🎴";
+    font-size: 24px;
+    opacity: 0.5;
 }
 
-/* 카드 내부 이미지 태그 */
-.card img {
-    width: 100%;
-    height: 100%;
-    object-fit: fill; /* 카드 꽉 채우기 */
-}
-
-/* 이미지가 깨졌을 때 보이는 대체 텍스트 스타일 */
-.card .alt-text {
-    font-size: 11px;
-    color: black;
-    font-weight: bold;
-    text-align: center;
-    line-height: 1.2;
-    position: absolute;
-    width: 100%;
-}
-
-/* 마우스 호버 효과 */
-#player-hand .card:hover {
-    transform: translateY(-20px) scale(1.1);
-    z-index: 10;
-    border: 2px solid yellow;
-}
-
-/* 뒷면 카드 */
-.card-back {
-    background-image: url('https://upload.wikimedia.org/wikipedia/commons/2/23/Hanafuda_Back.svg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
+/* 알림창 */
 #message-box {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     background-color: rgba(0,0,0,0.9);
     color: #ffeb3b;
-    padding: 15px 30px;
-    border-radius: 30px;
-    font-size: 1.2rem;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 1.5rem;
     font-weight: bold;
+    z-index: 200;
     display: none;
-    z-index: 100;
-    border: 2px solid #fff;
+    border: 2px solid white;
 }
 
 button {
-    padding: 10px 30px;
-    font-size: 18px;
+    padding: 12px 35px;
+    font-size: 20px;
     font-weight: bold;
     background-color: #ffca28;
     border: none;
-    border-radius: 20px;
+    border-radius: 30px;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
 }
